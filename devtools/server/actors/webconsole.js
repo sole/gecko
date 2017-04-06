@@ -1044,7 +1044,7 @@ WebConsoleActor.prototype =
     let matches = result.matches || [];
     let reqText = aRequest.text.substr(0, aRequest.cursor);
 
-    // We consider '$' as alphanumerc because it is used in the names of some
+    // We consider '$' as alphanumeric because it is used in the names of some
     // helper functions.
     let lastNonAlphaIsDot = /[.][a-zA-Z0-9$]*$/.test(reqText);
     if (!lastNonAlphaIsDot) {
@@ -1056,8 +1056,14 @@ WebConsoleActor.prototype =
         this._webConsoleCommandsCache =
           Object.getOwnPropertyNames(helpers.sandbox);
       }
-      matches = matches.concat(this._webConsoleCommandsCache
-          .filter(n => n.startsWith(result.matchProp)));
+      if(result.matchProp) {
+        // We want to match case-insensitively, but we don't need to convert on
+        // every match, so we'll keep the result in a variable
+        let matchPropLc = result.matchProp.toLowerCase();
+        matches = matches.concat(this._webConsoleCommandsCache.filter(n => {
+          return n.toLowerCase().startsWith(matchPropLc);
+        }));
+      }
     }
 
     return {
