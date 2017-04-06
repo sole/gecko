@@ -19,7 +19,7 @@ let itemIdCounter = 0;
  * @param {Document} toolboxDoc
  *        The toolbox document to attach the autocomplete popup panel.
  * @param {Object} options
- *        An object consiting any of the following options:
+ *        An object consisting of any of the following options:
  *        - listId {String} The id for the list <LI> element.
  *        - position {String} The position for the tooltip ("top" or "bottom").
  *        - theme {String} String related to the theme of the popup

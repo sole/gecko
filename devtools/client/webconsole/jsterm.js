@@ -1501,8 +1501,10 @@ JSTerm.prototype = {
         filterBy = input.substring(input.lastIndexOf(lastNonAlpha) + 1);
       }
 
+      // Convert filter to lower case only once
+      let filterByLc = filterBy.toLowerCase();
       let newList = cache.sort().filter(function (l) {
-        return l.startsWith(filterBy);
+        return l.toLowerCase().startsWith(filterByLc);
       });
 
       this.lastCompletion = {
@@ -1571,7 +1573,11 @@ JSTerm.prototype = {
     }
 
     let items = matches.reverse().map(function (match) {
-      return { preLabel: lastPart, label: match };
+      /* NOTE that we're not adding a `preLabel` because if you add a
+       * preLabel the pop up will use it as label content instead of
+       * the label itself
+       */
+      return { label: match };
     });
 
     let popup = this.autocompletePopup;
@@ -1660,13 +1666,16 @@ JSTerm.prototype = {
 
     let currentItem = this.autocompletePopup.selectedItem;
     if (currentItem && this.lastCompletion.value) {
-      let suffix =
-        currentItem.label.substring(this.lastCompletion.matchProp.length);
-      let cursor = this.inputNode.selectionStart;
       let value = this.getInputValue();
-      this.setInputValue(value.substr(0, cursor) +
-        suffix + value.substr(cursor));
-      let newCursor = cursor + suffix.length;
+      let cursor = this.inputNode.selectionStart;
+      let matchLength = this.lastCompletion.matchProp.length;
+      let completion = currentItem.label;
+      let dotPosition = cursor - matchLength;
+      let newValue = value.substring(0, dotPosition) + completion
+        + value.substring(cursor, value.length);
+      let newCursor = dotPosition + completion.length;
+
+      this.setInputValue(newValue);
       this.inputNode.selectionStart = this.inputNode.selectionEnd = newCursor;
       updated = true;
     }

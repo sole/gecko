@@ -25,6 +25,8 @@ add_task(function* () {
   yield popupHideAfterReturnWithNoSelection();
   yield testCompletionInText();
   yield popupHideAfterCompletionInText();
+  yield testCaseInsensitiveCompletionAllCaps();
+  yield testCaseInsensitiveCompletionMixedCase();
 
   HUD = popup = jsterm = inputNode = completeNode = null;
   Services.prefs.setBoolPref(PREF_AUTO_MULTILINE, true);
@@ -364,4 +366,63 @@ function popupHideAfterCompletionInText() {
   ok(!completeNode.value, "completeNode is empty");
 
   return promise.resolve();
+}
+
+function testCaseInsensitiveCompletionAllCaps() {
+  info("test that case insensitive completion works with all caps (see bug 672733)");
+
+  let deferred = promise.defer();
+
+  popup.once("popup-opened", function onShown() {
+    EventUtils.synthesizeKey("F", {});
+    EventUtils.synthesizeKey("O", {});
+    EventUtils.synthesizeKey("O", {});
+
+    is(popup.itemCount, 1, "popup.itemCount is correct");
+
+    let items = popup.getItems();
+    let containsItem = items[0].label === "foobarBug585991";
+    ok(containsItem, "getItems returns the expected item");
+
+    deferred.resolve();
+  });
+
+  jsterm.setInputValue("window");
+  EventUtils.synthesizeKey(".", {});
+
+  return deferred.promise;
+}
+
+function testCaseInsensitiveCompletionMixedCase() {
+  info("test completion works with mixed case input (see bug 672733)");
+
+  let deferred = promise.defer();
+
+  popup.once("popup-opened", function onShown() {
+    EventUtils.synthesizeKey("T", {});
+    EventUtils.synthesizeKey("e", {});
+    EventUtils.synthesizeKey("S", {});
+    EventUtils.synthesizeKey("t", {});
+
+    is(popup.itemCount, 2, "popup.itemCount is correct");
+
+    let items = popup.getItems().reverse();
+    let expectedItems = ["testBug873250a", "testBug873250b"];
+    let sameItems = items.every((prop, index) => {
+      return expectedItems[index] === prop.label;
+    });
+    ok(sameItems, "getItems returns the items we expect");
+
+    popup.once("popup-closed", function popupHidden() {
+      deferred.resolve();
+    });
+
+    EventUtils.synthesizeKey("VK_TAB", {});
+    EventUtils.synthesizeKey("VK_RETURN", {});
+  });
+
+  jsterm.setInputValue("window");
+  EventUtils.synthesizeKey(".", {});
+
+  return deferred.promise;
 }
