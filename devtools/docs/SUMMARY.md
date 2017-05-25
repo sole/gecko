@@ -1,6 +1,13 @@
 
 # Summary
 
+* [Contributing](./contributing.md)
+  * [Coding standards](./contributing/coding-standards.md)
+    * [JavaScript](./contributing/javascript.md)
+    * [CSS](./contributing/css.md)
+  * [Creating and sending patches](./contributing/making-prs.md)
+  * [Code reviews](./contributing/code-reviews.md)
+  * [Filing good bugs](./contributing/filing-good-bugs.md)
 * [Tool Architectures](tools/tools.md)
   * [Inspector](tools/inspector.md)
     * [Panel Architecture](tools/inspector-panel.md)
