@@ -15,20 +15,33 @@ const { emit: coreEmit } = require("sdk/event/core");
  * - `connect`: node, destinationNode, parameter
  * - `disconnect`: node
  */
-const AudioNodeModel = Class({
-  extends: EventTarget,
+class AudioNodeModel extends EventTarget {
+  //extends: EventTarget,
 
   // Will be added via AudioNodes `add`
-  collection: null,
+  // collection: null,
 
-  initialize: function (actor) {
+  /*initialize: function (actor) {
     this.actor = actor;
     this.id = actor.actorID;
     this.type = actor.type;
     this.bypassable = actor.bypassable;
     this._bypassed = false;
     this.connections = [];
-  },
+  },*/
+
+  constructor(actor) {
+    super(actor); // do we need the argument???
+    this.actor = actor;
+    this.id = actor.actorID;
+    this.type = actor.type;
+    this.bypassable = actor.bypassable;
+    this._bypassed = false;
+    this.connections = [];
+
+    // Will be added via AudioNodes `add`
+    this.collection = null;
+  }
 
   /**
    * Stores connection data inside this instance of this audio node connecting
@@ -40,31 +53,31 @@ const AudioNodeModel = Class({
    * @param AudioNodeModel destination
    * @param String param
    */
-  connect: function (destination, param) {
+  connect(destination, param) {
     let edge = findWhere(this.connections, { destination: destination.id, param: param });
 
     if (!edge) {
       this.connections.push({ source: this.id, destination: destination.id, param: param });
       coreEmit(this, "connect", this, destination, param);
     }
-  },
+  }
 
   /**
    * Clears out all internal connection data. Emits "disconnect" event.
    */
-  disconnect: function () {
+  disconnect () {
     this.connections.length = 0;
     coreEmit(this, "disconnect", this);
-  },
+  }
 
   /**
    * Gets the bypass status of the audio node.
    *
    * @return Boolean
    */
-  isBypassed: function () {
+  isBypassed () {
     return this._bypassed;
-  },
+  }
 
   /**
    * Sets the bypass value of an AudioNode.
@@ -72,10 +85,10 @@ const AudioNodeModel = Class({
    * @param Boolean enable
    * @return Promise
    */
-  bypass: function (enable) {
+  bypass (enable) {
     this._bypassed = enable;
     return this.actor.bypass(enable).then(() => coreEmit(this, "bypass", this, enable));
-  },
+  }
 
   /**
    * Returns a promise that resolves to an array of objects containing
@@ -83,9 +96,9 @@ const AudioNodeModel = Class({
    *
    * @return Promise->Object
    */
-  getParams: function () {
+  getParams () {
     return this.actor.getParams();
-  },
+  }
 
   /**
    * Returns a promise that resolves to an object containing an
@@ -94,9 +107,9 @@ const AudioNodeModel = Class({
    * @param String paramName
    * @return Promise->Array
    */
-  getAutomationData: function (paramName) {
+  getAutomationData (paramName) {
     return this.actor.getAutomationData(paramName);
-  },
+  }
 
   /**
    * Takes a `dagreD3.Digraph` object and adds this node to
@@ -104,14 +117,14 @@ const AudioNodeModel = Class({
    *
    * @param dagreD3.Digraph
    */
-  addToGraph: function (graph) {
+  addToGraph (graph) {
     graph.addNode(this.id, {
       type: this.type,
       label: this.type.replace(/Node$/, ""),
       id: this.id,
       bypassed: this._bypassed
     });
-  },
+  }
 
   /**
    * Takes a `dagreD3.Digraph` object and adds edges to
@@ -121,7 +134,7 @@ const AudioNodeModel = Class({
    *
    * @param dagreD3.Digraph
    */
-  addEdgesToGraph: function (graph) {
+  addEdgesToGraph (graph) {
     for (let edge of this.connections) {
       let options = {
         source: this.id,
@@ -138,10 +151,13 @@ const AudioNodeModel = Class({
 
       graph.addEdge(null, this.id, edge.destination, options);
     }
-  },
+  }
 
-  toString: () => "[object AudioNodeModel]",
-});
+  toString () {
+    return "[object AudioNodeModel]";
+  }
+
+};
 
 
 /**
@@ -153,15 +169,22 @@ const AudioNodeModel = Class({
  * - `connect`: node, destinationNode, parameter
  * - `disconnect`: node
  */
-const AudioNodesCollection = Class({
-  extends: EventTarget,
+class AudioNodesCollection extends EventTarget {
+  //extends: EventTarget,
 
-  model: AudioNodeModel,
+  constructor() {
+    super();
+    this.model = AudioNodeModel;
+    this.models = new Set();
+    // this._onModelEvent = this._onModelEvent.bind(this); // I don't think this is used at all (?)
+  }
 
-  initialize: function () {
+  //model: AudioNodeModel,
+
+  /*initialize: function () {
     this.models = new Set();
     this._onModelEvent = this._onModelEvent.bind(this);
-  },
+  },*/
 
   /**
    * Iterates over all models within the collection, calling `fn` with the
@@ -169,9 +192,9 @@ const AudioNodesCollection = Class({
    *
    * @param Function fn
    */
-  forEach: function (fn) {
+  forEach (fn) {
     this.models.forEach(fn);
-  },
+  }
 
   /**
    * Creates a new AudioNodeModel, passing through arguments into the AudioNodeModel
@@ -183,7 +206,7 @@ const AudioNodesCollection = Class({
    * @param Object obj
    * @return AudioNodeModel
    */
-  add: function (obj) {
+  add (obj) {
     let node = new this.model(obj);
     node.collection = this;
 
@@ -192,7 +215,7 @@ const AudioNodesCollection = Class({
     node.on("*", this._onModelEvent);
     coreEmit(this, "add", node);
     return node;
-  },
+  }
 
   /**
    * Removes an AudioNodeModel from the internal collection. Calls `delete` method
@@ -200,17 +223,17 @@ const AudioNodesCollection = Class({
    *
    * @param AudioNodeModel node
    */
-  remove: function (node) {
+  remove (node) {
     this.models.delete(node);
     coreEmit(this, "remove", node);
-  },
+  }
 
   /**
    * Empties out the internal collection of all AudioNodeModels.
    */
-  reset: function () {
+  reset () {
     this.models.clear();
-  },
+  }
 
   /**
    * Takes an `id` from an AudioNodeModel and returns the corresponding
@@ -220,9 +243,9 @@ const AudioNodesCollection = Class({
    * @param Number id
    * @return AudioNodeModel|null
    */
-  get: function (id) {
+  get (id) {
     return findWhere(this.models, { id: id });
-  },
+  }
 
   /**
    * Returns the count for how many models are a part of this collection.
@@ -231,7 +254,7 @@ const AudioNodesCollection = Class({
    */
   get length() {
     return this.models.size;
-  },
+  }
 
   /**
    * Returns detailed information about the collection. used during tests
@@ -241,7 +264,7 @@ const AudioNodesCollection = Class({
    *
    * @return Object
    */
-  getInfo: function () {
+  getInfo () {
     let info = {
       nodes: this.length,
       edges: 0,
@@ -254,7 +277,7 @@ const AudioNodesCollection = Class({
       info.paramEdges += paramEdgeCount;
     });
     return info;
-  },
+  }
 
   /**
    * Adds all nodes within the collection to the passed in graph,
@@ -262,17 +285,17 @@ const AudioNodesCollection = Class({
    *
    * @param dagreD3.Digraph
    */
-  populateGraph: function (graph) {
+  populateGraph (graph) {
     this.models.forEach(node => node.addToGraph(graph));
     this.models.forEach(node => node.addEdgesToGraph(graph));
-  },
+  }
 
   /**
    * Called when a stored model emits any event. Used to manage
    * event propagation, or listening to model events to react, like
    * removing a model from the collection when it's destroyed.
    */
-  _onModelEvent: function (eventName, node, ...args) {
+  _onModelEvent (eventName, node, ...args) {
     if (eventName === "remove") {
       // If a `remove` event from the model, remove it
       // from the collection, and let the method handle the emitting on
@@ -282,7 +305,11 @@ const AudioNodesCollection = Class({
       // Pipe the event to the collection
       coreEmit(this, eventName, node, ...args);
     }
-  },
+  }
 
-  toString: () => "[object AudioNodeCollection]",
-});
+  toString () {
+    return "[object AudioNodeCollection]";
+  }
+
+}
+

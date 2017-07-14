@@ -155,6 +155,8 @@ var ContextView = {
 
     let graph = new dagreD3.Digraph();
     let renderer = new dagreD3.Renderer();
+	  console.log('what is gAudioNodes');
+	  console.log(gAudioNodes);
     gAudioNodes.populateGraph(graph);
 
     // Post-render manipulation of the nodes

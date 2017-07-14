@@ -9,6 +9,45 @@ const {PrefObserver} = require("devtools/client/shared/prefs");
  * to keep track of audio nodes within the audio context.
  */
 var gAudioNodes = new AudioNodesCollection();
+dump('gAudioNodes is initialised');
+// dump(Object.getOwnPropertyNames(gAudioNodes));
+//
+function showMeTheMethods(obj) {
+  dump('\n****** SHOW ME *******\n');
+  dump(JSON.stringify(Object.getOwnPropertyNames(Object.getPrototypeOf(obj))), null, '\t');
+  dump('\n\n');
+  dump(JSON.stringify(Object.getOwnPropertyDescriptors(Object.getPrototypeOf(obj))), null, '\t');
+  dump('\n');
+}
+
+class A {
+  constructor() {
+    this.myProp = 'ok';
+  }
+  
+  oneMethod() {
+    dump('I am a method, I do things');
+  }
+}
+
+class B extends A {
+  constructor() {
+    super();
+  }
+
+  theMethodFromB() {
+    dump('I am a B class method');
+  }
+}
+
+var thingy = new A();
+showMeTheMethods(thingy);
+var anotherThingy = new B();
+showMeTheMethods(anotherThingy);
+
+dump(anotherThingy.oneMethod);
+anotherThingy.theMethodFromB();
+
 
 /**
  * Initializes the web audio editor views
