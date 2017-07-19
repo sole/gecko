@@ -16,19 +16,6 @@ const { emit: coreEmit } = require("sdk/event/core");
  * - `disconnect`: node
  */
 class AudioNodeModel extends EventTarget {
-  //extends: EventTarget,
-
-  // Will be added via AudioNodes `add`
-  // collection: null,
-
-  /*initialize: function (actor) {
-    this.actor = actor;
-    this.id = actor.actorID;
-    this.type = actor.type;
-    this.bypassable = actor.bypassable;
-    this._bypassed = false;
-    this.connections = [];
-  },*/
 
   constructor(actor) {
     super(actor); // do we need the argument???
@@ -169,22 +156,17 @@ class AudioNodeModel extends EventTarget {
  * - `connect`: node, destinationNode, parameter
  * - `disconnect`: node
  */
-class AudioNodesCollection extends EventTarget {
-  //extends: EventTarget,
+class AudioNodesCollection extends EventTarget { esta el problema en extender EventTarget en si?
 
   constructor() {
+    dump('AudioNodesCollection constructor');
     super();
     this.model = AudioNodeModel;
     this.models = new Set();
-    this._onModelEvent = this._onModelEvent.bind(this); // I don't think this is used at all (?)
-  }
-
-  //model: AudioNodeModel,
-
-  /*initialize: function () {
-    this.models = new Set();
+    dump(this.prototype);dump('\n');
+//    dump(this.prototype.prototype);dump('\n');
     this._onModelEvent = this._onModelEvent.bind(this);
-  },*/
+  }
 
   /**
    * Iterates over all models within the collection, calling `fn` with the
