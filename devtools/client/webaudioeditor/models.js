@@ -176,7 +176,7 @@ class AudioNodesCollection extends EventTarget {
     super();
     this.model = AudioNodeModel;
     this.models = new Set();
-    // this._onModelEvent = this._onModelEvent.bind(this); // I don't think this is used at all (?)
+    this._onModelEvent = this._onModelEvent.bind(this); // I don't think this is used at all (?)
   }
 
   //model: AudioNodeModel,
