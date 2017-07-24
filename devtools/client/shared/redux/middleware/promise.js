@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 "use strict";
 
-const uuidgen = require("sdk/util/uuid").uuid;
+const uuidgen = require("devtools/shared/uuid");
 const defer = require("devtools/shared/defer");
 const {
   entries, toObject, executeSoon

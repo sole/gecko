@@ -66,6 +66,7 @@ DevToolsModules(
     'system.js',
     'task.js',
     'ThreadSafeDevToolsUtils.js',
+    'uuid.js',
     'wasm-source-map.js',
 )
 
