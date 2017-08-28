@@ -107,7 +107,6 @@ function BrowserLoaderBuilder({ baseURI, window, useOnlyShared, commonLibRequire
     sharedGlobal: true,
     sandboxPrototype: window,
     sandboxName: "DevTools (UI loader)",
-    noSandboxAddonId: true,
     paths: Object.assign({}, dynamicPaths, loaderOptions.paths),
     invisibleToDebugger: loaderOptions.invisibleToDebugger,
     requireHook: (id, require) => {

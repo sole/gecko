@@ -74,7 +74,6 @@ BuiltinProvider.prototype = {
       invisibleToDebugger: this.invisibleToDebugger,
       sharedGlobal: true,
       sandboxName: "DevTools (Module loader)",
-      noSandboxAddonId: true,
       requireHook: (id, require) => {
         if (id.startsWith("raw!")) {
           return requireRawId(id, require);

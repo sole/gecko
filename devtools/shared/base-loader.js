@@ -11,22 +11,20 @@ const { classes: Cc, Constructor: CC, interfaces: Ci, utils: Cu,
 const systemPrincipal = CC('@mozilla.org/systemprincipal;1', 'nsIPrincipal')();
 const { loadSubScript } = Cc['@mozilla.org/moz/jssubscript-loader;1'].
                      getService(Ci.mozIJSSubScriptLoader);
-const { addObserver, notifyObservers } = Cc['@mozilla.org/observer-service;1'].
+const { notifyObservers } = Cc['@mozilla.org/observer-service;1'].
                         getService(Ci.nsIObserverService);
 const { XPCOMUtils } = Cu.import("resource://gre/modules/XPCOMUtils.jsm", {});
-const { NetUtil } = Cu.import("resource://gre/modules/NetUtil.jsm", {});
-const { normalize, dirname } = Cu.import("resource://gre/modules/osfile/ospath_unix.jsm");
+const { normalize, dirname } = Cu.import("resource://gre/modules/osfile/ospath_unix.jsm", {});
 
 XPCOMUtils.defineLazyServiceGetter(this, "resProto",
                                    "@mozilla.org/network/protocol;1?name=resource",
                                    "nsIResProtocolHandler");
+XPCOMUtils.defineLazyModuleGetter(this, "NetUtil", "resource://gre/modules/NetUtil.jsm");
 
 const { defineLazyGetter } = XPCOMUtils;
 
 // Define some shortcuts.
 const bind = Function.call.bind(Function.bind);
-const getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
-const prototypeOf = Object.getPrototypeOf;
 function* getOwnIdentifiers(x) {
   yield* Object.getOwnPropertyNames(x);
   yield* Object.getOwnPropertySymbols(x);
@@ -112,13 +110,8 @@ function join(base, ...paths) {
 //    system principal.
 // - `prototype`: Ancestor for the sandbox that will be created. Defaults to
 //    `{}`.
-// - `wantXrays`: A Boolean value indicating whether code outside the sandbox
-//    wants X-ray vision with respect to objects inside the sandbox. Defaults
-//    to `true`.
 // - `sandbox`: A sandbox to share JS compartment with. If omitted new
 //    compartment will be created.
-// - `metadata`: A metadata object associated with the sandbox. It should
-//    be JSON-serializable.
 // For more details see:
 // https://developer.mozilla.org/en/Components.utils.Sandbox
 function Sandbox(options) {
@@ -128,28 +121,15 @@ function Sandbox(options) {
     // still can expose via prototype.
     wantComponents: false,
     sandboxName: options.name,
-    principal: 'principal' in options ? options.principal : systemPrincipal,
-    wantXrays: 'wantXrays' in options ? options.wantXrays : true,
     sandboxPrototype: 'prototype' in options ? options.prototype : {},
     invisibleToDebugger: 'invisibleToDebugger' in options ?
                          options.invisibleToDebugger : false,
-    metadata: 'metadata' in options ? options.metadata : {},
-    waiveIntereposition: !!options.waiveIntereposition
+    waiveInterposition: false
   };
 
-  if (options.metadata && options.metadata.addonID) {
-    options.addonId = options.metadata.addonID;
-  }
+  let sandbox = Cu.Sandbox(systemPrincipal, options);
 
-  let sandbox = Cu.Sandbox(options.principal, options);
-
-  // Each sandbox at creation gets set of own properties that will be shadowing
-  // ones from it's prototype. We override delete such `sandbox` properties
-  // to avoid shadowing.
-  delete sandbox.Iterator;
   delete sandbox.Components;
-  delete sandbox.importFunction;
-  delete sandbox.debug;
 
   return sandbox;
 }
@@ -157,7 +137,7 @@ function Sandbox(options) {
 // Populates `exports` of the given CommonJS `module` object, in the context
 // of the given `loader` by evaluating code associated with it.
 function load(loader, module) {
-  let { sandboxes, globals, loadModuleHook } = loader;
+  let { sandboxes, globals } = loader;
   let require = Require(loader, module);
 
   // We expose set of properties defined by `CommonJS` specification via
@@ -185,7 +165,7 @@ function load(loader, module) {
   };
 
   let sandbox;
-  if (loader.useSharedGlobalSandbox || isSystemURI(module.uri)) {
+  if (loader.useSharedGlobalSandbox) {
     // Create a new object in this sandbox, that will be used as
     // the scope object for this particular module
     sandbox = new loader.sharedGlobalSandbox.Object();
@@ -217,12 +197,7 @@ function load(loader, module) {
     sandbox = Sandbox({
       name: module.uri,
       prototype: Object.create(globals, descriptors),
-      wantXrays: false,
-      invisibleToDebugger: loader.invisibleToDebugger,
-      metadata: {
-        addonID: loader.id,
-        URI: module.uri
-      }
+      invisibleToDebugger: loader.invisibleToDebugger
     });
   }
   sandboxes[module.uri] = sandbox;
@@ -269,10 +244,6 @@ function load(loader, module) {
     });
   }
 
-  if (loadModuleHook) {
-    module = loadModuleHook(module, require);
-  }
-
   // Only freeze the exports object if we created it ourselves. Modules
   // which completely replace the exports object and still want it
   // frozen need to freeze it themselves.
@@ -311,10 +282,6 @@ function resolve(id, base) {
     resolved = './' + resolved;
 
   return resolved;
-}
-
-function addTrailingSlash(path) {
-  return path.replace(/\/*$/, "/");
 }
 
 function compileMapping(paths) {
@@ -426,8 +393,7 @@ function lazyRequireModule(obj, moduleId, prop = moduleId) {
 // with it during link time.
 function Require(loader, requirer) {
   let {
-    modules, mapping, mappingCache,
-    manifest, rootURI, isNative, requireHook
+    modules, mapping, mappingCache, requireHook
   } = loader;
 
   function require(id) {
@@ -580,8 +546,8 @@ function unload(loader, reason) {
   notifyObservers(subject, 'sdk:loader:destroy', reason);
 };
 
-// Function makes new loader that can be used to load CommonJS modules
-// described by a given `options.manifest`. Loader takes following options:
+// Function makes new loader that can be used to load CommonJS modules.
+// Loader takes following options:
 // - `globals`: Optional map of globals, that all module scopes will inherit
 //   from. Map is also exposed under `globals` property of the returned loader
 //   so it can be extended further later. Defaults to `{}`.
@@ -594,10 +560,6 @@ function unload(loader, reason) {
 //   If `resolve` does not returns `uri` string exception will be thrown by
 //   an associated `require` call.
 function Loader(options) {
-  function normalizeRootURI(uri) {
-    return addTrailingSlash(join(uri));
-  }
-
   let { paths, sharedGlobal, globals } = options;
   if (!globals) {
     globals = {};
@@ -649,12 +611,7 @@ function Loader(options) {
   // global objects.
   let sharedGlobalSandbox = Sandbox({
     name: options.sandboxName || "Addon-SDK",
-    wantXrays: false,
     invisibleToDebugger: options.invisibleToDebugger || false,
-    metadata: {
-      addonID: options.noSandboxAddonId ? undefined : options.id,
-      URI: options.sandboxName || "Addon-SDK"
-    },
     prototype: options.sandboxPrototype || globals,
   });
 
@@ -664,7 +621,7 @@ function Loader(options) {
     // depend on being able to add globals after the loader was created.
     for (let name of getOwnIdentifiers(globals))
       Object.defineProperty(sharedGlobalSandbox, name,
-                            getOwnPropertyDescriptor(globals, name));
+                            Object.getOwnPropertyDescriptor(globals, name));
   }
 
   // Loader object is just a representation of a environment
@@ -687,14 +644,10 @@ function Loader(options) {
     invisibleToDebugger: { enumerable: false,
                            value: options.invisibleToDebugger || false },
     requireHook: { enumerable: false, value: options.requireHook },
-    loadModuleHook: { enumerable: false, value: options.loadModuleHook },
   };
 
   return Object.create(null, returnObj);
 };
-
-var SystemRegExp = /^resource:\/\/(gre|devtools|testing-common)\//;
-var isSystemURI = uri => SystemRegExp.test(uri);
 
 var isJSONURI = uri => uri.endsWith('.json');
 var isJSMURI = uri => uri.endsWith('.jsm');
