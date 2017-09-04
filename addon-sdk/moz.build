@@ -34,7 +34,6 @@ modules = [
     'sdk/console/plain-text.js',
     'sdk/console/traceback.js',
     'sdk/core/disposable.js',
-    'sdk/core/heritage.js',
     'sdk/core/namespace.js',
     'sdk/core/observer.js',
     'sdk/core/promise.js',
