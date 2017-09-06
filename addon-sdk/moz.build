@@ -30,7 +30,6 @@ modules = [
     'sdk/addon/installer.js',
     'sdk/addon/window.js',
     'sdk/base64.js',
-    'sdk/clipboard.js',
     'sdk/console/plain-text.js',
     'sdk/console/traceback.js',
     'sdk/core/disposable.js',
