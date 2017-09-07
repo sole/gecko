@@ -142,7 +142,7 @@ DIRS += [
 if 'gtk' in CONFIG['MOZ_WIDGET_TOOLKIT']:
     DIRS += ['/toolkit/system/gnome']
 
-DIRS += ['/addon-sdk']
+#DIRS += ['/addon-sdk']
 
 if CONFIG['ENABLE_MARIONETTE']:
     DIRS += [
