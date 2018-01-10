@@ -3,12 +3,12 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-// Tests that the Console API implements the time() and timeEnd() methods. See Bug 658368.
+// Tests that the Console API implements the time() and timeEnd() methods.
 
 "use strict";
 
 const TEST_URI = "http://example.com/browser/devtools/client/webconsole/" +
-                 "test/test-bug-658368-time-methods.html";
+                 "new-console-output/test/mochitest/test-bug-658368-time-methods.html";
 
 const TEST_URI2 = "data:text/html;charset=utf-8,<script>" +
                   "console.timeEnd('bTimer');</script>";
@@ -19,13 +19,15 @@ const TEST_URI3 = "data:text/html;charset=utf-8,<script>" +
 const TEST_URI4 = "data:text/html;charset=utf-8," +
                   "<script>console.timeEnd('bTimer');</script>";
 
-add_task(function* () {
-  yield loadTab(TEST_URI);
+add_task(async function() {
+  //yield loadTab(TEST_URI);
 
-  let hud1 = yield openConsole();
+  //let hud1 = yield openConsole();
+  let hud1 = await openNewTabAndConsole(TEST_URI);
 
-  yield waitForMessages({
-    webconsole: hud1,
+  //yield waitForMessages({
+  let onMessages1 = waitForMessages({
+    hud: hud1,
     messages: [{
       name: "aTimer started",
       consoleTime: "aTimer",
@@ -35,10 +37,15 @@ add_task(function* () {
     }],
   });
 
+  console.log('await messages 1');
+  await onMessages1;
+  console.log('got messages 1');
+
   // The next test makes sure that timers with the same name but in separate
   // tabs, do not contain the same value.
-  let { browser } = yield loadTab(TEST_URI2);
-  let hud2 = yield openConsole();
+  //let { browser } = yield loadTab(TEST_URI2);
+  //let hud2 = yield openConsole();
+  let hud2 = await openNewTabAndConsole(TEST_URI2);
 
   testLogEntry(hud2.outputNode, "bTimer: timer started",
                "bTimer was not started", false, true);
@@ -47,20 +54,24 @@ add_task(function* () {
   // pages, do not contain the same value.
   BrowserTestUtils.loadURI(gBrowser.selectedBrowser, TEST_URI3);
 
-  yield waitForMessages({
-    webconsole: hud2,
+  //yield waitForMessages({
+  let onMessages2 = waitForMessages({
+    hud: hud2,
     messages: [{
       name: "bTimer started",
       consoleTime: "bTimer",
     }],
   });
 
+  await onMessages2;
+  console.log('got messages 2');
+
   hud2.jsterm.clearOutput();
 
   // Now the following console.timeEnd() call shouldn't display anything,
   // if the timers in different pages are not related.
   BrowserTestUtils.loadURI(gBrowser.selectedBrowser, TEST_URI4);
-  yield loadBrowser(browser);
+  // yield loadBrowser(browser);
 
   testLogEntry(hud2.outputNode, "bTimer: timer started",
                "bTimer was not started", false, true);
