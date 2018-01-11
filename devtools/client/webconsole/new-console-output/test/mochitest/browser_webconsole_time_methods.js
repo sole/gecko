@@ -26,7 +26,7 @@ add_task(async function() {
   let hud1 = await openNewTabAndConsole(TEST_URI);
 
   //yield waitForMessages({
-  let onMessages1 = waitForMessages({
+  /*let onMessages1 = waitForMessages({
     hud: hud1,
     messages: [{
       name: "aTimer started",
@@ -37,25 +37,28 @@ add_task(async function() {
     }],
   });
 
-  console.log('await messages 1');
-  await onMessages1;
-  console.log('got messages 1');
+  await onMessages1;*/
 
-  // The next test makes sure that timers with the same name but in separate
+  await waitFor(() => findMessage(hud1, "aTimer: "));
+
+  // The next test makes sure that timers with the same name, but in separate
   // tabs, do not contain the same value.
   //let { browser } = yield loadTab(TEST_URI2);
   //let hud2 = yield openConsole();
   let hud2 = await openNewTabAndConsole(TEST_URI2);
 
-  testLogEntry(hud2.outputNode, "bTimer: timer started",
-               "bTimer was not started", false, true);
+  // testLogEntry(hud2.outputNode, "bTimer: timer started",
+  //             "bTimer was not started", false, true);
+  let errorNode2 = findMessage(hud2, "bTimer");
+  ok(errorNode2.classList.contains("warn") && errorNode2.classList.contains("timeEnd"), "Timers with the same name but in separate tabs do not contain the same value");
 
-  // The next test makes sure that timers with the same name but in separate
+
+  // The next test makes sure that timers with the same name, but in separate
   // pages, do not contain the same value.
   BrowserTestUtils.loadURI(gBrowser.selectedBrowser, TEST_URI3);
 
   //yield waitForMessages({
-  let onMessages2 = waitForMessages({
+  /*let onMessages2 = waitForMessages({
     hud: hud2,
     messages: [{
       name: "bTimer started",
@@ -64,7 +67,9 @@ add_task(async function() {
   });
 
   await onMessages2;
-  console.log('got messages 2');
+  console.log('got messages 2');*/
+
+  // TODO await waitFor(() => findMessage(hud2, "bTimer"));
 
   hud2.jsterm.clearOutput();
 
@@ -73,6 +78,6 @@ add_task(async function() {
   BrowserTestUtils.loadURI(gBrowser.selectedBrowser, TEST_URI4);
   // yield loadBrowser(browser);
 
-  testLogEntry(hud2.outputNode, "bTimer: timer started",
-               "bTimer was not started", false, true);
+  // TODO testLogEntry(hud2.outputNode, "bTimer: timer started",
+  //             "bTimer was not started", false, true);
 });
