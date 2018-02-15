@@ -20,42 +20,21 @@ const TEST_URI4 = "data:text/html;charset=utf-8," +
                   "<script>console.timeEnd('bTimer');</script>";
 
 add_task(async function() {
-  //yield loadTab(TEST_URI);
 
-  //let hud1 = yield openConsole();
   let hud1 = await openNewTabAndConsole(TEST_URI);
-
-  //yield waitForMessages({
-  /*let onMessages1 = waitForMessages({
-    hud: hud1,
-    messages: [{
-      name: "aTimer started",
-      consoleTime: "aTimer",
-    }, {
-      name: "aTimer end",
-      consoleTimeEnd: "aTimer",
-    }],
-  });
-
-  await onMessages1;*/
 
   await waitFor(() => findMessage(hud1, "aTimer: "));
 
   // The next test makes sure that timers with the same name, but in separate
   // tabs, do not contain the same value.
-  //let { browser } = yield loadTab(TEST_URI2);
-  //let hud2 = yield openConsole();
   let hud2 = await openNewTabAndConsole(TEST_URI2);
 
-  // testLogEntry(hud2.outputNode, "bTimer: timer started",
-  //             "bTimer was not started", false, true);
   let errorNode2 = await waitFor(() => findMessage(hud2, "bTimer", ".message.timeEnd.warn"));
   ok(errorNode2, "Timers with the same name but in separate tabs do not contain the same value");
 
   // The next test makes sure that timers with the same name, but in separate
   // pages, do not contain the same value.
   await BrowserTestUtils.loadURI(gBrowser.selectedBrowser, TEST_URI3);
-  console.log('fallas o que');
   
   // There should not be a 'bTimer' message on the output
   async function waitAndSee() {
@@ -73,7 +52,7 @@ add_task(async function() {
 
   // Now the following console.timeEnd() call shouldn't display anything
   // if the timers in different pages are not related.
-  BrowserTestUtils.loadURI(gBrowser.selectedBrowser, TEST_URI4);
+  await BrowserTestUtils.loadURI(gBrowser.selectedBrowser, TEST_URI4);
   // yield loadBrowser(browser);
 
   // TODO testLogEntry(hud2.outputNode, "bTimer: timer started",
