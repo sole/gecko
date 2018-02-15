@@ -40,13 +40,13 @@ add_task(async function() {
   async function waitAndSee() {
     return new Promise((res, rej) => {
         setTimeout(() => {
-            res(findMessages(hud2, 'bTimer'));
+            res(findMessage(hud2, 'bTimer'));
         }, 500);
     });
   }
 
-  let messages = await waitAndSee();
-  ok(messages.length === 0, "Timers with the same name but in separate pages do not contain the same value");
+  let message = await waitAndSee();
+  ok(!message, "Timers with the same name but in separate pages do not contain the same value");
   
   hud2.jsterm.clearOutput();
 
