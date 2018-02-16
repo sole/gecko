@@ -8,7 +8,7 @@
 "use strict";
 
 const TEST_URI = "http://example.com/browser/devtools/client/webconsole/" +
-                 "new-console-output/test/mochitest/test-bug-658368-time-methods.html";
+                 "new-console-output/test/mochitest/test-time-methods.html";
 
 const TEST_URI2 = "data:text/html;charset=utf-8,<script>" +
                   "console.timeEnd('bTimer');</script>";
@@ -21,40 +21,49 @@ const TEST_URI4 = "data:text/html;charset=utf-8," +
 
 add_task(async function() {
 
-  let hud1 = await openNewTabAndConsole(TEST_URI);
-
-  await waitFor(() => findMessage(hud1, "aTimer: "));
-
-  // The next test makes sure that timers with the same name, but in separate
-  // tabs, do not contain the same value.
-  let hud2 = await openNewTabAndConsole(TEST_URI2);
-
-  let errorNode2 = await waitFor(() => findMessage(hud2, "bTimer", ".message.timeEnd.warn"));
-  ok(errorNode2, "Timers with the same name but in separate tabs do not contain the same value");
-
-  // The next test makes sure that timers with the same name, but in separate
-  // pages, do not contain the same value.
-  await BrowserTestUtils.loadURI(gBrowser.selectedBrowser, TEST_URI3);
-  
-  // There should not be a 'bTimer' message on the output
-  async function waitAndSee() {
-    return new Promise((res, rej) => {
-        setTimeout(() => {
-            res(findMessage(hud2, 'bTimer'));
-        }, 500);
+  async function waitForMessageIn(hud, message) {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve(findMessage(hud, message));
+      }, 250);
     });
   }
 
-  let message = await waitAndSee();
-  ok(!message, "Timers with the same name but in separate pages do not contain the same value");
-  
+  // Calling console.time('aTimer') followed by console.timeEnd('aTimer')
+  // should result in the aTimer being ended, and a message like aTimer: 123ms
+  // printed to the console
+  let hud1 = await openNewTabAndConsole(TEST_URI);
+
+  let aTimerCompleted = await waitFor(() => findMessage(hud1, "aTimer: "));
+  ok(aTimerCompleted, "Calling console.time('a') and console.timeEnd('a') ends the 'a' timer");
+
+  // Calling console.time('bTimer') in the current tab, opening a new tab
+  // and calling console.timeEnd('bTimer') in the new tab should not result in
+  // the bTimer in the initial tab being ended, but rather a warning message
+  // output to the console: Timer "bTimer" doesn't exist
+  let hud2 = await openNewTabAndConsole(TEST_URI2);
+
+  let error1 = await waitFor(() => findMessage(hud2, "bTimer", ".message.timeEnd.warn"));
+  ok(error1, "Timers with the same name but in separate tabs do not contain the same value");
+
+  // The next tests make sure that timers with the same name but in separate
+  // pages do not contain the same value.
+  await BrowserTestUtils.loadURI(gBrowser.selectedBrowser, TEST_URI3);
+
+  // The new console front-end does not display a message when timers are started,
+  // so there should not be a 'bTimer started' message on the output
+  let message1 = await waitForMessageIn(hud2, "bTimer started");
+  ok(!message1, "No message is printed to the console when the timer starts");
+
   hud2.jsterm.clearOutput();
 
-  // Now the following console.timeEnd() call shouldn't display anything
-  // if the timers in different pages are not related.
+  // Calling console.time('bTimer') on a page, then navigating to another page
+  // and calling console.timeEnd('bTimer') on the new console front-end should
+  // result on a warning message: 'Timer "bTimer" does not exist',
+  // as the timers in different pages are not related
   await BrowserTestUtils.loadURI(gBrowser.selectedBrowser, TEST_URI4);
-  // yield loadBrowser(browser);
 
-  // TODO testLogEntry(hud2.outputNode, "bTimer: timer started",
-  //             "bTimer was not started", false, true);
+  let error2 = await waitFor(() => findMessage(hud2, "bTimer", ".message.timeEnd.warn"));
+  ok(error2, "Timers with the same name but in separate pages do not contain the same value");
+
 });
