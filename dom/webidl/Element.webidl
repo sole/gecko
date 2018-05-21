@@ -244,8 +244,8 @@ partial interface Element {
    * If you're thinking about using this, don't. You have many, much better
    * options.
    */
-  [ChromeOnly, Throws]
-  void unsafeSetInnerHTML(DOMString html);
+  /*[ChromeOnly, Throws]
+  void unsafeSetInnerHTML(DOMString html);*/
 };
 
 // http://www.w3.org/TR/selectors-api/#interface-definitions
