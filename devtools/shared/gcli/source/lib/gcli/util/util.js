@@ -491,7 +491,7 @@ exports.setTextContent = function(elem, text) {
  * There are problems with innerHTML on XML documents, so we need to do a dance
  * using document.createRange().createContextualFragment() when in XML mode
  */
-exports.setContents = function(elem, contents) {
+/*exports.setContents = function(elem, contents) {
   if (typeof HTMLElement !== 'undefined' && contents instanceof HTMLElement) {
     exports.clearElement(elem);
     elem.appendChild(contents);
@@ -500,7 +500,7 @@ exports.setContents = function(elem, contents) {
 
   if ("unsafeSetInnerHTML" in elem) {
     // FIXME: Stop relying on unsanitized HTML.
-    elem.unsafeSetInnerHTML(contents);
+    elem.unsafe Set Inner HTML(contents); // added spaces to make it really obvious that we don't want this
   } else if ("innerHTML" in elem) {
     elem.innerHTML = contents;
   } else {
@@ -523,7 +523,7 @@ exports.setContents = function(elem, contents) {
       throw ex;
     }
   }
-};
+};*/
 
 /**
  * How to detect if we're in an XML document.
