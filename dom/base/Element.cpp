@@ -3797,11 +3797,11 @@ Element::SetInnerHTML(const nsAString& aInnerHTML, nsIPrincipal* aSubjectPrincip
   SetInnerHTMLInternal(aInnerHTML, aError);
 }
 
-void
+/*void
 Element::UnsafeSetInnerHTML(const nsAString& aInnerHTML, ErrorResult& aError)
 {
   SetInnerHTMLInternal(aInnerHTML, aError, true);
-}
+}*/
 
 void
 Element::GetOuterHTML(nsAString& aOuterHTML)
