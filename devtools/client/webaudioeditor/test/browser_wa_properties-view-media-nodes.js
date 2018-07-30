@@ -59,7 +59,7 @@ add_task(async function() {
   const defaults = await Promise.all(types.map(type => nodeDefaultValues(type)));
 
   for (let i = 0; i < types.length; i++) {
-    click(panelWin, findGraphNode(panelWin, nodeIds[i]));
+    await click(panelWin, findGraphNode(panelWin, nodeIds[i]));
     await waitForInspectorRender(panelWin, EVENTS);
     checkVariableView(gVars, 0, defaults[i], types[i]);
   }
