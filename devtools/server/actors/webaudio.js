@@ -620,7 +620,6 @@ exports.WebAudioActor = protocol.ActorClassWithSpec(webAudioSpec, {
     // Ensure we have a Number, rather than a string
     // return via notification.
     nativeID = ~~nativeID;
-    //var kk = new Error();dump('SOLE\n');dump(kk.stack);
     stakk();
     
     if(this._nativeToActorID === null) {
