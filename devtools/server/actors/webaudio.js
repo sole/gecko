@@ -403,6 +403,8 @@ var AudioNodeActor = exports.AudioNodeActor = protocol.ActorClassWithSpec(audion
  */
 exports.WebAudioActor = protocol.ActorClassWithSpec(webAudioSpec, {
   initialize: function(conn, targetActor) {
+    dump('ACTOR INITIALISED\n');
+    stakk();
     protocol.Actor.prototype.initialize.call(this, conn);
     this.targetActor = targetActor;
 
@@ -510,6 +512,8 @@ exports.WebAudioActor = protocol.ActorClassWithSpec(webAudioSpec, {
 
   _handleCreationCall: function(functionCall) {
     const { caller, result } = functionCall.details;
+    dump('HANDLE CREATION CALL\n');
+    stakk();
     // Keep track of the first node created, so we can alert
     // the front end that an audio context is being used since
     // we're not hooking into the constructor itself, just its
@@ -577,6 +581,8 @@ exports.WebAudioActor = protocol.ActorClassWithSpec(webAudioSpec, {
    * an `actorID`.
    */
   _constructAudioNode: function(node) {
+    dump('THE NODE IS CONSTRUCTED\n');
+    stakk();
     // Ensure AudioNode is wrapped.
     node = new XPCNativeWrapper(node);
 
@@ -614,6 +620,12 @@ exports.WebAudioActor = protocol.ActorClassWithSpec(webAudioSpec, {
     // Ensure we have a Number, rather than a string
     // return via notification.
     nativeID = ~~nativeID;
+    stakk();
+    
+    if(this._nativeToActorID === null) {
+      dump('The horror, a null nativeToActor');
+      stakk();
+    }
 
     const actorID = this._nativeToActorID.get(nativeID);
     const actor = actorID != null ? this.conn.getActor(actorID) : null;
@@ -863,4 +875,12 @@ function copyInto(dest, source) {
     dest[i] = source[i];
   }
   return dest;
+}
+
+
+function stakk() {
+  var kk = new Error();
+  dump('STAKK---------------------------\n');
+  dump(kk.stack);
+  dump('--------------------------------\n');
 }
