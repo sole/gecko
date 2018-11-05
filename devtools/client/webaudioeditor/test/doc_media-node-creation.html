@@ -16,13 +16,12 @@
       const ctx = new AudioContext();
       const audio = new Audio();
       let meNode, msNode, mdNode;
-      navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia;
 
-      navigator.getUserMedia({ audio: true, fake: true }, stream => {
+      navigator.mediaDevices.getUserMedia({ audio: true, fake: true }).then(stream => {
         meNode = ctx.createMediaElementSource(audio);
         msNode = ctx.createMediaStreamSource(stream);
         mdNode = ctx.createMediaStreamDestination();
-      }, () => {});
+      });
     </script>
   </body>
 
