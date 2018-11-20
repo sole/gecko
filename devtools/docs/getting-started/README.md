@@ -1,7 +1,5 @@
 # Getting started
 
-You can use this as a checklist, or click on individual steps to dive into the details and navigate between steps using the left and right arrows once you're in each individual page.
-
 1. [Get and build the code](./build.md). This step takes the longest, so you can complete the following step while your computer does stuff:
 1. TODO Get a Bugzilla account (if you don't have one yet).
 1. Once you can build Firefox, [configure a development profile](development-profiles.md).
@@ -9,7 +7,7 @@ You can use this as a checklist, or click on individual steps to dive into the d
     * Choose something from [the list of existing bugs](../bugs-issues.md).
     * Or if you would like to work on something that is not listed there, [file a bug in Bugzilla](https://bugzilla.mozilla.org/enter_bug.cgi?product=DevTools) (you'll need the Bugzilla account you created earlier).
     * Or simply experiment! Change stuff, rebuild and restart, and see what happens. You can look at the [files and directories overview](../files/README.md) for guidance on where things are.
-1. Work on the bug. If you get stuck or have questions, [get in touch](TODO).
+1. Work on the bug. If you get stuck or have questions, [get in touch](https://firefox-dev.tools/#getting-in-touch).
 1. [Set up for code reviews](TODO).
 1. [Find a suitable reviewer](TODO), and [upload your first patch] for review.
 1. If all goes well, your patch will be approved by the reviewer, and they will request it be "landed" into the repository. Congratulations! You have contributed to DevTools 😃

@@ -2,10 +2,10 @@
 # Summary
 
 * [Getting started](getting-started/README.md)
-  * [Where is the code?](getting-started/where-is-the-code.md)
-  * [Architecture overview](getting-started/architecture-overview.md)
-  * [Set up to build DevTools](getting-started/build.md)
-  * [Development profiles](getting-started/development-profiles.md)
+  * [Get and build the code](getting-started/build.md)
+  * [Get a Bugzilla account](TODO)
+  * [Create a development profile](getting-started/development-profiles.md)
+  * [Set up for code reviews](TODO)
 * [Contributing](./contributing.md)
   * [Coding standards](./contributing/coding-standards.md)
     * [JavaScript](./contributing/javascript.md)
