@@ -1,7 +1,7 @@
 # Getting started
 
 1. [Get and build the code](./build.md). This step takes the longest, so you can complete the following step while your computer does stuff:
-1. TODO Get a Bugzilla account (if you don't have one yet).
+1. [Get a Bugzilla account](./bugzilla.md) (if you don't have one yet).
 1. Once you can build Firefox, [configure a development profile](development-profiles.md).
 1. Decide what to work on.
     * Choose something from [the list of existing bugs](../bugs-issues.md).

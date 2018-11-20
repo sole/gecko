@@ -3,7 +3,7 @@
 
 * [Getting started](getting-started/README.md)
   * [Get and build the code](getting-started/build.md)
-  * [Get a Bugzilla account](TODO)
+  * [Get a Bugzilla account](getting-started/bugzilla.md)
   * [Create a development profile](getting-started/development-profiles.md)
   * [Set up for code reviews](TODO)
 * [Contributing](./contributing.md)
