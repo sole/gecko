@@ -56,3 +56,4 @@
     * [Registering A New Actor](backend/actor-registration.md)
     * [Actor Best Practices](backend/actor-best-practices.md)
 * [Preferences](preferences.md)
+* [About this documentation](about-documentation.md)
