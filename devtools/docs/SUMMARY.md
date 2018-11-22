@@ -5,7 +5,7 @@
   * [Get and build the code](getting-started/build.md)
   * [Get a Bugzilla account](getting-started/bugzilla.md)
   * [Create a development profile](getting-started/development-profiles.md)
-  * [Set up for code reviews](TODO)
+  * [Set up for code reviews](getting-started/code-reviews.md)
 * [Contributing](./contributing.md)
   * [Coding standards](./contributing/coding-standards.md)
     * [JavaScript](./contributing/javascript.md)
