@@ -1,5 +1,14 @@
 # Creating and sending patches <!--TODO: (in the future: Making Pull Requests)-->
 
+The process is like this:
+
+* You do your work, locally
+* Using a command line tool (`moz-phab`), you upload the code you modified to the online website for reviews (`Phabricator`), requesting a review from the adequate developer(s).
+* They will review your changes, and
+  * if they're good, they will *approve* your code
+     * then, we request the code be *landed* into the repository
+  * if there are issues in the code, the reviewer will tell you what and where, and you can work on fixing the issues, or ask for clarifications if you're new to the code, etc, then you send the code again when you think the issues have been addressed
+
 ## Creating a patch
 
 To create a patch you need to first commit your changes and then export them to a patch file.
