@@ -9,8 +9,8 @@
     * Or simply experiment! Change stuff, rebuild and restart, and see what happens. You can look at the [files and directories overview](../files/README.md) for guidance on where things are.
 1. Work on the bug. If you get stuck or have questions, [get in touch](https://firefox-dev.tools/#getting-in-touch).
 1. [Set up for code reviews](./code-reviews.md).
-1. [Find a suitable reviewer](./find-a-reviewer.md), and [upload your first patch] for review.
-1. If all goes well, your patch will be approved by the reviewer, and they will request it be "landed" into the repository. Congratulations! You have contributed to DevTools 😃
+1. [Find a suitable reviewer](./find-a-reviewer.md), and [upload your code](../contributing/making-prs.md) for review.
+1. If all goes well, your code will be approved by the reviewer, and they will request it be "landed" into the repository. **Congratulations! You have contributed to DevTools** 😃
 
 ## Levelling up
 
